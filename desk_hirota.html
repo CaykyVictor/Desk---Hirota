@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Desk Hirota – Chamados de TI</title>
+<style>
+:root{--bg:#121620;--card:#1b2130;--tx:#e8ebf1;--mu:#98a2b3;--bd:#2c3446;--pr:#ff5a73;--ok:#47cd9c;--wa:#fdb022;--er:#f97066;--in:#84adff;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root[data-theme="light"]{--bg:#f5f6f8;--card:#fff;--tx:#1d2433;--mu:#667085;--bd:#e0e3e8;--pr:#c8102e;--ok:#12805c;--wa:#b54708;--er:#b42318;--in:#175cd3;color-scheme:light}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--card);border-bottom:1px solid var(--bd);flex-wrap:wrap}
+h1{font-size:18px;margin:0}h1 span{color:var(--pr)}h2{font-size:14px;margin:0 0 10px}
+main{max-width:1200px;margin:0 auto;padding:16px 20px}
+button,input,select,textarea{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+button{cursor:pointer}button.p{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.kpi b{display:block;font-size:26px}.kpi small{color:var(--mu)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.filters input{flex:1;min-width:180px}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{color:var(--mu);font-weight:600;font-size:12px}tr.r{cursor:pointer}tr.r:hover{background:var(--bg)}
+.b{display:inline-block;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600;border:1px solid currentColor}
+.Crítica,.late{color:var(--er)}.Alta{color:var(--wa)}.Média{color:var(--in)}.Baixa,.ok{color:var(--ok)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:16px}
+.bar{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:13px}.bar i{display:block;height:10px;background:var(--pr);border-radius:5px;min-width:2px}.bar em{width:110px;font-style:normal;color:var(--mu)}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);width:min(560px,94vw);padding:18px}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+label{display:block;font-size:12px;color:var(--mu);margin:10px 0 3px}dialog input,dialog select,dialog textarea{width:100%}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.act{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.log{font-size:12px;color:var(--mu);margin-top:10px;max-height:110px;overflow:auto}.mu{color:var(--mu)}
+.chat{margin-top:14px;border:1px solid var(--bd);border-radius:10px;padding:10px}.chat h3{font-size:13px;margin:0 0 8px}
+#cb{max-height:200px;min-height:60px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.m{max-width:85%;padding:7px 10px;border-radius:10px;white-space:pre-wrap;word-break:break-word}.m small{display:block;font-size:11px;opacity:.75}
+.m.lj{align-self:flex-start;background:var(--bg)}.m.ti{align-self:flex-end;background:var(--pr);color:#fff}
+.cin{display:grid;grid-template-columns:90px 1fr;gap:6px;margin-top:8px}.cin textarea{grid-column:1/3;resize:vertical}
+.split{display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;align-items:stretch}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.chatp{display:flex;flex-direction:column;min-height:440px}.chatp h2{display:flex;justify-content:space-between;align-items:center;gap:8px}.chatp select{max-width:200px}
+#gmsgs{flex:1;min-height:260px;max-height:440px;overflow:auto;display:flex;flex-direction:column;gap:6px;border:1px solid var(--bd);border-radius:10px;padding:10px}
+@media(max-width:900px){.split{grid-template-columns:1fr}}
+#chatbox{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 32px));min-height:0;max-height:70vh;z-index:20;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+#chatbox[hidden]{display:none}#chatbox #gmsgs{min-height:180px;max-height:none}
+#fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));width:56px;height:56px;border-radius:50%;padding:0;display:grid;place-items:center;background:var(--pr);border:0;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.45);z-index:21}
+#fab i{position:absolute;top:1px;right:1px;width:15px;height:15px;border-radius:50%;background:#ff2d2d;border:2px solid #fff;display:none}#fab.nw i{display:block}
+#fab:hover{filter:brightness(1.1)}#fab svg{width:26px;height:26px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}.tabs button{border-radius:99px;padding:7px 18px}.tabs button.on{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600}
+.cv{display:grid;grid-template-columns:minmax(260px,330px) 1fr;gap:12px;height:calc(100vh - 170px);min-height:480px}
+.cv .card{display:flex;flex-direction:column;min-height:0}#vlist{flex:1;overflow:auto;margin:0 -6px}
+.ci{padding:9px 10px;border-radius:8px;cursor:pointer;border-bottom:1px solid var(--bd)}.ci:hover,.ci.on{background:var(--bg)}.ci small{color:var(--mu)}
+#vhead{border-bottom:1px solid var(--bd);padding-bottom:10px;margin-bottom:10px}#vhead p{margin:6px 0}
+#vmsgs{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:6px;padding:4px 2px}
+@media(max-width:900px){.cv{grid-template-columns:1fr;height:auto}#vlist{max-height:30vh}#vmsgs{min-height:260px}}
+</style></head><body>
+<header><h1><span>Hirota</span> Desk · Chamados de TI</h1>
+<div><span id="mode" class="mu"></span> <button class="p" id="new">+ Novo chamado</button></div></header>
+<main>
+<div class="tabs"><button class="on" id="t1">📋 Chamados</button><button id="t2">💬 Conversas</button></div>
+<div id="v1">
+<div class="kpis" id="kpis"></div>
+<div class="filters">
+<input id="q" placeholder="Buscar por unidade, descrição, ID...">
+<select id="fs"><option value="">Todos os status</option></select>
+<select id="fc"><option value="">Todas as categorias</option></select>
+<select id="fp"><option value="">Todas as prioridades</option></select>
+<select id="ff"><option value="">Todos os formatos</option></select></div>
+<div class="card tw"><table><thead><tr><th>ID</th><th>Abertura</th><th>Unidade</th><th>Formato</th><th>Categoria</th><th>Prioridade</th><th>Status</th><th>Prazo (SLA)</th><th>Técnico</th></tr></thead><tbody id="tb"></tbody></table><p id="empty" class="mu" style="display:none;padding:10px">Nenhum chamado encontrado.</p></div>
+<div class="split">
+<div class="card"><h2>📊 Dashboard</h2><div class="dash">
+<div><h2>Por categoria</h2><div id="d1"></div></div><div><h2>Por status</h2><div id="d4"></div></div>
+<div><h2>Por formato</h2><div id="d2"></div></div><div><h2>Por unidade (top 8)</h2><div id="d3"></div></div></div></div>
+<div class="card chatp" id="chatbox" hidden><h2>💬 Chat <select id="gsel"><option value="_geral">Canal geral</option></select></h2>
+<div id="gmsgs"></div>
+<div class="cin"><select id="grole"><option>Loja</option><option>TI</option></select><input id="gname" placeholder="Seu nome">
+<textarea id="gtext" rows="2" placeholder="Escreva uma mensagem... (Enter envia)"></textarea></div>
+<div class="act" style="margin-top:6px"><button class="p" id="gsend">Enviar</button></div></div></div>
+</div>
+<div id="v2" hidden><div class="cv">
+<div class="card"><input id="vq" placeholder="Buscar chamado ou unidade..." style="margin-bottom:8px"><div id="vlist"></div></div>
+<div class="card"><div id="vhead" class="mu">Selecione um chamado à esquerda para conversar sobre o problema.</div>
+<div id="vmsgs"></div>
+<div class="cin"><select id="vrole"><option>Loja</option><option>TI</option></select><input id="vname" placeholder="Seu nome">
+<textarea id="vtext" rows="2" placeholder="Escreva uma mensagem sobre este problema... (Enter envia)"></textarea></div>
+<div class="act" style="margin-top:6px"><button class="p" id="vsend">Enviar</button></div></div></div></div>
+</main>
+
+<button id="fab" aria-label="Abrir chat" title="Chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><i></i></button>
+<dialog id="dn"><h2>Novo chamado</h2><div id="nf">
+<div class="row"><div><label>Cód. unidade *</label><input id="nu" placeholder="U001"></div><div><label>Formato *</label><select id="nfm"></select></div></div>
+<label>Nome da unidade</label><input id="nn">
+<div class="row"><div><label>Solicitante *</label><input id="ns"></div><div><label>Contato</label><input id="nt" placeholder="Telefone / WhatsApp"></div></div>
+<div class="row"><div><label>Categoria *</label><select id="nc"></select></div><div><label>Subcategoria</label><select id="nsc"></select></div></div>
+<div class="row"><div><label>Ativo (patrimônio)</label><input id="na"></div><div><label>Prioridade *</label><select id="np"></select></div></div>
+<label>Descrição *</label><textarea id="nd" rows="3"></textarea>
+<p class="mu" id="sla"></p>
+<div class="act"><button id="nx">Cancelar</button><button class="p" id="ns2">Abrir chamado</button></div></div></dialog>
+
+<dialog id="dd"><div id="df"></div></dialog>
+
+<script>
+const CATS={"Rede":["Sem internet","Lentidão","Wi-Fi","Link de operadora","Switch/roteador"],"Software":["Sistema de PDV","ERP","Retaguarda","E-mail","Acesso/senha"],"Hardware":["Computador","Monitor","Impressora","Leitor de código de barras","Nobreak"],"Balança":["Não liga","Calibração","Etiqueta","Integração com PDV"],"Telefonia fixa":["Ramal mudo","Linha cortada","PABX"],"Celular/coletor":["Defeito","Bloqueio","Aplicativo","Troca de aparelho"],"Cabos":["Cabo de rede","Cabo de energia","Cabo HDMI","Troca/passagem de cabo"],"Fontes/energia":["Fonte de PC","Fonte de impressora","Tomada"],"Outros":["Outros"]};
+const SLA={"Crítica":1,"Alta":4,"Média":24,"Baixa":72};
+const ST=["Aberto","Triagem","Em atendimento","Aguardando peça/fornecedor","Resolvido","Fechado"];
+const FM=["Super","Express","Em Casa"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>t?new Date(t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"–";
+const opts=(a,first)=>(first?`<option value="">${first}</option>`:"")+a.map(x=>`<option>${esc(x)}</option>`).join("");
+let T=[],store=null,uid="",unsub=null,ME={role:"Loja",name:""};
+try{ME=JSON.parse(localStorage.getItem("hirota_me"))||ME}catch(e){}
+const done=t=>t.status==="Resolvido"||t.status==="Fechado";
+const late=t=>!done(t)&&Date.now()>t.due;
+
+async function init(){
+  try{const u=await claude.use("user");if(u)uid=await u.id()}catch(e){}
+  try{
+    const db=await claude.use("db");
+    if(db){const col=db.collection("tickets");
+      const mc=id=>col.doc(id).collection("messages");
+      store={save:(t)=>col.doc(t.id).set(t),
+        msgs:(id,cb)=>mc(id).onSnapshot(s=>cb(s.docs.map(d=>d.data()).sort((a,b)=>a.t-b.t)),()=>{}),
+        send:(id,m)=>mc(id).doc(m.id).set(m)};
+      col.onSnapshot(s=>{T=s.docs.map(d=>d.data());render()},()=>{});
+      $("mode").textContent="● Compartilhado";return}
+  }catch(e){}
+  const LM={},LC={};
+  store={save:t=>{const i=T.findIndex(x=>x.id===t.id);i<0?T.push(t):T[i]=t;render()},
+    msgs:(id,cb)=>{LC[id]=cb;cb(LM[id]||[]);return()=>{delete LC[id]}},
+    send:async(id,m)=>{(LM[id]=LM[id]||[]).push(m);LC[id]&&LC[id](LM[id])}};
+  $("mode").textContent="Modo local (dados não compartilhados)";
+}
+
+function filtered(){
+  const q=$("q").value.toLowerCase(),s=$("fs").value,c=$("fc").value,p=$("fp").value,f=$("ff").value;
+  return T.filter(t=>(!s||t.status===s)&&(!c||t.cat===c)&&(!p||t.prio===p)&&(!f||t.fmt===f)&&(!q||[t.id,t.unit,t.unitName,t.desc,t.req,t.asset].join(" ").toLowerCase().includes(q))).sort((a,b)=>b.created-a.created);
+}
+function bars(el,map){
+  const e=Object.entries(map).sort((a,b)=>b[1]-a[1]).slice(0,8),m=Math.max(1,...e.map(x=>x[1]));
+  $(el).innerHTML=e.length?e.map(([k,v])=>`<div class="bar"><em>${esc(k)}</em><i style="width:${v/m*100}%"></i>${v}</div>`).join(""):'<span class="mu">Sem dados</span>';
+}
+function render(){
+  const open=T.filter(t=>!done(t)).length,lt=T.filter(late).length;
+  const fin=T.filter(t=>t.resolved),ok=fin.filter(t=>t.resolved<=t.due).length;
+  const avg=fin.length?fin.reduce((s,t)=>s+(t.resolved-t.created),0)/fin.length/36e5:0;
+  $("kpis").innerHTML=[["Total",T.length],["Em aberto",open],["Atrasados",lt],["SLA cumprido",fin.length?Math.round(ok/fin.length*100)+"%":"–"],["Tempo médio (h)",fin.length?avg.toFixed(1):"–"]].map(([k,v])=>`<div class="card kpi"><b>${v}</b><small>${k}</small></div>`).join("");
+  const L=filtered();
+  $("tb").innerHTML=L.map(t=>`<tr class="r" data-id="${esc(t.id)}"><td><b>${esc(t.id)}</b></td><td>${fmt(t.created)}</td><td>${esc(t.unit)} ${esc(t.unitName)}</td><td>${esc(t.fmt)}</td><td>${esc(t.cat)}</td><td><span class="b ${esc(t.prio)}">${esc(t.prio)}</span></td><td>${esc(t.status)}</td><td class="${late(t)?"late":""}">${done(t)?(t.resolved<=t.due?'<span class="ok">Cumprido</span>':"Estourado"):fmt(t.due)+(late(t)?" ⚠":"")}</td><td>${esc(t.tech)||"–"}</td></tr>`).join("");
+  $("empty").style.display=L.length?"none":"block";
+  const c1={},c2={},c3={},c4={};
+  T.forEach(t=>{c1[t.cat]=(c1[t.cat]||0)+1;c2[t.fmt]=(c2[t.fmt]||0)+1;const u=(t.unit+" "+t.unitName).trim();c3[u]=(c3[u]||0)+1;c4[t.status]=(c4[t.status]||0)+1});
+  bars("d1",c1);bars("d2",c2);bars("d3",c3);bars("d4",c4);chatOpts();vlistRender();vheadUpdate();
+}
+
+function setSub(){$("nsc").innerHTML=opts(CATS[$("nc").value]||[])}
+function slaMsg(){const h=SLA[$("np").value];$("sla").textContent=h?`Prazo de atendimento (SLA): ${h} h`:""}
+$("nc").innerHTML=opts(Object.keys(CATS));$("np").innerHTML=opts(Object.keys(SLA));$("nfm").innerHTML=opts(FM);
+$("fs").innerHTML=opts(ST,"Todos os status");$("fc").innerHTML=opts(Object.keys(CATS),"Todas as categorias");$("fp").innerHTML=opts(Object.keys(SLA),"Todas as prioridades");$("ff").innerHTML=opts(FM,"Todos os formatos");
+$("nc").onchange=setSub;$("np").onchange=slaMsg;setSub();slaMsg();
+["q","fs","fc","fp","ff"].forEach(i=>$(i).oninput=render);
+$("dd").addEventListener("close",()=>{if(unsub){unsub();unsub=null}});
+$("new").onclick=()=>$("dn").showModal();$("nx").onclick=()=>$("dn").close();
+$("ns2").onclick=async()=>{
+  const g=i=>$(i).value.trim(),need=["nu","ns","nd"].filter(i=>!g(i));
+  if(need.length){need.forEach(i=>$(i).style.borderColor="var(--er)");return}
+  const now=Date.now(),id="CH-"+now.toString(36).slice(-5).toUpperCase(),p=g("np");
+  const t={id,created:now,unit:g("nu").toUpperCase(),unitName:g("nn"),fmt:g("nfm"),req:g("ns"),contact:g("nt"),cat:g("nc"),sub:g("nsc"),asset:g("na"),prio:p,desc:g("nd"),status:"Aberto",tech:"",solution:"",part:"",due:now+SLA[p]*36e5,resolved:0,by:uid,log:[{t:now,m:"Chamado aberto"}]};
+  await store.save(t);$("dn").close();["nu","nn","ns","nt","na","nd"].forEach(i=>{$(i).value="";$(i).style.borderColor=""});
+};
+$("tb").onclick=e=>{const r=e.target.closest("tr");if(!r)return;const t=T.find(x=>x.id===r.dataset.id);if(t)detail(t)};
+function detail(t){
+  $("df").innerHTML=`<h2>${esc(t.id)} · ${esc(t.cat)} / ${esc(t.sub)} <span class="b ${esc(t.prio)}">${esc(t.prio)}</span></h2>
+  <p><b>${esc(t.unit)} ${esc(t.unitName)}</b> (${esc(t.fmt)}) · ${esc(t.req)} ${esc(t.contact)}<br><span class="mu">Ativo: ${esc(t.asset)||"–"} · Aberto ${fmt(t.created)} · Prazo ${fmt(t.due)}</span></p>
+  <p>${esc(t.desc)}</p>
+  <div class="row"><div><label>Status</label><select id="es">${opts(ST)}</select></div><div><label>Técnico responsável</label><input id="et" value="${esc(t.tech)}"></div></div>
+  <label>Solução aplicada</label><textarea id="eo" rows="2">${esc(t.solution)}</textarea>
+  <label>Peça trocada</label><input id="ep" value="${esc(t.part)}">
+  <div class="chat"><h3>💬 Conversa do chamado</h3><div id="cb"></div>
+  <div class="cin"><select id="cr"><option>Loja</option><option>TI</option></select><input id="cn" placeholder="Seu nome">
+  <textarea id="cm" rows="2" placeholder="Escreva uma mensagem... (Enter envia)"></textarea></div>
+  <div class="act" style="margin-top:6px"><button class="p" id="cs">Enviar</button></div></div>
+  <div class="log">${(t.log||[]).slice().reverse().map(l=>`${fmt(l.t)} – ${esc(l.m)}`).join("<br>")}</div>
+  <div class="act"><button id="ev">💬 Abrir na aba Conversas</button><button id="ec">Fechar</button><button class="p" id="eg">Salvar</button></div>`;
+  $("es").value=t.status;$("dd").showModal();
+  $("cr").value=ME.role;$("cn").value=ME.name;
+  if(unsub)unsub();
+  unsub=store.msgs(t.id,list=>{const b=$("cb");if(!b)return;b.innerHTML=list.length?list.map(m=>`<div class="m ${m.role==="TI"?"ti":"lj"}"><small>${esc(m.name)} · ${esc(m.role)} · ${fmt(m.t)}</small>${esc(m.text)}</div>`).join(""):'<span class="mu">Nenhuma mensagem ainda.</span>';b.scrollTop=b.scrollHeight});
+  const send=async()=>{const x=$("cm").value.trim();if(!x)return;
+    ME={role:$("cr").value,name:$("cn").value.trim()||$("cr").value};
+    try{localStorage.setItem("hirota_me",JSON.stringify(ME))}catch(e){}
+    $("cm").value="";
+    try{await store.send(t.id,{id:"m"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),t:Date.now(),by:uid,role:ME.role,name:ME.name,text:x})}catch(e){$("cm").value=x}};
+  $("cs").onclick=send;
+  $("cm").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};
+  $("ec").onclick=()=>$("dd").close();
+  $("ev").onclick=()=>{$("dd").close();goTab(2,t.id)};
+  $("eg").onclick=async()=>{
+    const n={...t,status:$("es").value,tech:$("et").value.trim(),solution:$("eo").value.trim(),part:$("ep").value.trim(),log:[...(t.log||[])]};
+    if(n.status!==t.status)n.log.push({t:Date.now(),m:"Status: "+t.status+" → "+n.status});
+    if(n.tech!==t.tech)n.log.push({t:Date.now(),m:"Técnico: "+(n.tech||"–")});
+    if(done(n)&&!n.resolved)n.resolved=Date.now();
+    if(!done(n))n.resolved=0;
+    await store.save(n);$("dd").close();
+  };
+}
+let gun=null,gopts="",lastTs=0,curMax=0,first=true,mine=new Set();
+function track(list){
+  const mx=Math.max(0,...list.map(m=>m.t));curMax=mx;
+  if(first){first=false;lastTs=mx;return}
+  if($("chatbox").hidden){if(list.some(m=>m.t>lastTs&&!mine.has(m.id)))$("fab").classList.add("nw")}else lastTs=mx;
+}
+function chatOpts(){
+  const o='<option value="_geral">Canal geral</option>'+T.slice().sort((a,b)=>done(a)-done(b)||b.created-a.created).map(t=>`<option value="${esc(t.id)}">${esc(t.id)} · ${esc(t.unit)}${done(t)?" (encerrado)":""}</option>`).join("");
+  if(o===gopts)return;const v=$("gsel").value||"_geral";gopts=o;$("gsel").innerHTML=o;
+  $("gsel").value=[...$("gsel").options].some(x=>x.value===v)?v:"_geral";
+}
+function chatSwitch(){
+  if(!store)return;if(typeof gun==="function")gun();gun=null;first=true;const b=$("gmsgs");b.innerHTML="";
+  gun=store.msgs($("gsel").value,list=>{b.innerHTML=list.length?list.map(m=>`<div class="m ${m.role==="TI"?"ti":"lj"}"><small>${esc(m.name)} · ${esc(m.role)} · ${fmt(m.t)}</small>${esc(m.text)}</div>`).join(""):'<span class="mu">Nenhuma mensagem ainda. Escolha o Canal geral ou um chamado.</span>';b.scrollTop=b.scrollHeight;track(list)});
+}
+async function gsend(){
+  const x=$("gtext").value.trim();if(!x)return;
+  ME={role:$("grole").value,name:$("gname").value.trim()||$("grole").value};
+  try{localStorage.setItem("hirota_me",JSON.stringify(ME))}catch(e){}
+  $("gtext").value="";
+  const mid="m"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);mine.add(mid);
+  try{await store.send($("gsel").value,{id:mid,t:Date.now(),by:uid,role:ME.role,name:ME.name,text:x})}catch(e){$("gtext").value=x}
+}
+$("gsel").onchange=chatSwitch;$("gsend").onclick=gsend;
+$("gtext").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();gsend()}};
+$("grole").value=ME.role;$("gname").value=ME.name;
+let vcur="",vun=null,vsig="";
+function goTab(n,id){
+  $("v1").hidden=n!==1;$("v2").hidden=n!==2;$("t1").classList.toggle("on",n===1);$("t2").classList.toggle("on",n===2);
+  $("fab").style.display=n===2?"none":"";if(n===2){vlistRender();if(id)vopen(id);else if(!vcur&&T.length)vopen(T.slice().sort((a,b)=>done(a)-done(b)||b.created-a.created)[0].id)}
+}
+function vlistRender(){
+  const q=$("vq").value.toLowerCase();
+  $("vlist").innerHTML=T.filter(t=>!q||[t.id,t.unit,t.unitName,t.desc,t.cat].join(" ").toLowerCase().includes(q)).sort((a,b)=>done(a)-done(b)||b.created-a.created)
+   .map(t=>`<div class="ci ${t.id===vcur?"on":""}" data-id="${esc(t.id)}"><b>${esc(t.id)}</b> · <span class="${esc(t.prio)}">${esc(t.prio)}</span><br>${esc(t.unit)} ${esc(t.unitName)}<br><small>${esc(t.cat)} · ${esc(t.status)}</small></div>`).join("")||'<p class="mu" style="padding:8px">Nenhum chamado.</p>';
+}
+function vheadUpdate(force){
+  const t=T.find(x=>x.id===vcur);if(!t)return;
+  const sig=JSON.stringify([t.id,t.status,t.desc,t.due]);if(sig===vsig&&!force)return;vsig=sig;
+  $("vhead").className="";
+  $("vhead").innerHTML=`<b>${esc(t.id)}</b> · ${esc(t.cat)}${t.sub?" / "+esc(t.sub):""} <span class="b ${esc(t.prio)}">${esc(t.prio)}</span><br>${esc(t.unit)} ${esc(t.unitName)} (${esc(t.fmt)}) · ${esc(t.req)} ${esc(t.contact)}<br><span class="mu">Prazo ${fmt(t.due)}</span><p>${esc(t.desc)}</p>Status: <select id="vst">${ST.map(s=>`<option ${s===t.status?"selected":""}>${s}</option>`).join("")}</select>`;
+  $("vst").onchange=async()=>{const c=T.find(x=>x.id===vcur);if(!c)return;const n={...c,status:$("vst").value,log:[...(c.log||[]),{t:Date.now(),m:"Status: "+c.status+" → "+$("vst").value}]};
+    if(done(n)&&!n.resolved)n.resolved=Date.now();if(!done(n))n.resolved=0;await store.save(n)};
+}
+function vopen(id){
+  if(!store)return;vcur=id;vsig="";if(typeof vun==="function")vun();vun=null;vheadUpdate(true);vlistRender();
+  $("vrole").value=ME.role;$("vname").value=ME.name;const b=$("vmsgs");b.innerHTML="";
+  vun=store.msgs(id,list=>{b.innerHTML=list.length?list.map(m=>`<div class="m ${m.role==="TI"?"ti":"lj"}"><small>${esc(m.name)} · ${esc(m.role)} · ${fmt(m.t)}</small>${esc(m.text)}</div>`).join(""):'<span class="mu">Nenhuma mensagem ainda. Comece a conversa sobre este problema.</span>';b.scrollTop=b.scrollHeight});
+}
+async function vsend(){
+  const x=$("vtext").value.trim();if(!x||!vcur)return;
+  ME={role:$("vrole").value,name:$("vname").value.trim()||$("vrole").value};
+  try{localStorage.setItem("hirota_me",JSON.stringify(ME))}catch(e){}
+  $("vtext").value="";
+  try{await store.send(vcur,{id:"m"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),t:Date.now(),by:uid,role:ME.role,name:ME.name,text:x})}catch(e){$("vtext").value=x}
+}
+$("t1").onclick=()=>goTab(1);$("t2").onclick=()=>goTab(2);$("vq").oninput=vlistRender;
+$("vlist").onclick=e=>{const i=e.target.closest(".ci");if(i)vopen(i.dataset.id)};
+$("vsend").onclick=vsend;$("vtext").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();vsend()}};
+$("fab").onclick=()=>{const b=$("chatbox");b.hidden=!b.hidden;if(!b.hidden){lastTs=curMax;$("fab").classList.remove("nw");$("gmsgs").scrollTop=$("gmsgs").scrollHeight;$("gtext").focus()}};
+render();init().then(chatSwitch);
+</script></body></html>
