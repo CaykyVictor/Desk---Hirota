@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hirota Desk – Painel da TI</title>
+<style>
+:root{--bg:#121620;--card:#1b2130;--tx:#e8ebf1;--mu:#98a2b3;--bd:#2c3446;--pr:#ff5a73;--er:#f97066;--ok:#47cd9c;color-scheme:dark;box-sizing:border-box}
+:root[data-theme="light"]{--bg:#f5f6f8;--card:#fff;--tx:#1d2433;--mu:#667085;--bd:#e0e3e8;--pr:#c8102e;--er:#b42318;--ok:#12805c;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,Arial,sans-serif;height:100vh;display:flex;flex-direction:column}
+header{padding:12px 16px;background:var(--card);border-bottom:1px solid var(--bd);display:flex;gap:10px;align-items:center}
+h1{font-size:17px;margin:0;flex:1}h1 span{color:var(--pr)}
+select,input,textarea,button{font:inherit;color:var(--tx);background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:7px 9px}
+button.p{background:var(--pr);border-color:var(--pr);color:#fff;font-weight:600;cursor:pointer}
+main{flex:1;display:grid;grid-template-columns:minmax(300px,380px) 1fr;min-height:0}
+#list{overflow:auto;border-right:1px solid var(--bd)}
+.it{padding:10px 14px;border-bottom:1px solid var(--bd);cursor:pointer}.it:hover,.it.on{background:var(--card)}
+.it small{color:var(--mu)}.w{color:var(--er);font-weight:700}
+#det{display:flex;flex-direction:column;min-height:0;padding:14px;gap:10px;overflow:auto}
+#msgs{flex:1;min-height:160px;overflow:auto;display:flex;flex-direction:column;gap:6px;border:1px solid var(--bd);border-radius:10px;padding:10px;background:var(--card)}
+.m{max-width:80%;padding:7px 10px;border-radius:10px;white-space:pre-wrap;word-break:break-word}.m small{display:block;font-size:11px;opacity:.7}
+.in{align-self:flex-start;background:var(--bg)}.out{align-self:flex-end;background:var(--pr);color:#fff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.send{display:flex;gap:8px}.send textarea{flex:1}
+.mu{color:var(--mu)}.bad{color:var(--er)}
+@media(max-width:760px){main{grid-template-columns:1fr}#list{max-height:35vh;border-right:0;border-bottom:1px solid var(--bd)}}
+dialog{border:1px solid var(--bd);border-radius:14px;background:var(--card);color:var(--tx);width:min(520px,94vw);padding:18px}dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog label{display:block;font-size:12px;color:var(--mu);margin:10px 0 3px}dialog input,dialog select,dialog textarea{width:100%}
+</style></head><body>
+<header><h1><span>Hirota</span> Desk · Painel da TI</h1>
+<select id="fs"><option value="">Todos os status</option></select><button class="p" id="nw">+ Novo chamado</button></header>
+<main><div id="list"></div><div id="det"><p class="mu">Selecione um chamado.</p></div></main>
+<dialog id="dn"><h3 style="margin:0">Novo chamado</h3>
+<div class="row"><div><label>Cód. unidade *</label><input id="nu" placeholder="U001"></div><div><label>Prioridade *</label><select id="np"></select></div></div>
+<div class="row"><div><label>Categoria *</label><select id="nc"></select></div><div><label>Solicitante</label><input id="nr"></div></div>
+<label>WhatsApp do solicitante (opcional, DDI+DDD)</label><input id="nt" placeholder="5511999999999">
+<label>Descrição *</label><textarea id="nd" rows="3"></textarea><p id="ne" class="bad"></p>
+<div style="display:flex;gap:8px;justify-content:flex-end"><button id="nx">Cancelar</button><button class="p" id="ns">Abrir chamado</button></div></dialog>
+<script>
+const ST=["Aberto","Triagem","Em atendimento","Aguardando peça/fornecedor","Resolvido","Fechado"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=t=>t?new Date(t).toLocaleString("pt-BR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"–";
+$("fs").innerHTML+=ST.map(s=>`<option>${s}</option>`).join("");
+let cur=+location.hash.slice(1)||0,busy=false;
+async function api(u,o){const r=await fetch(u,o&&{...o,headers:{"Content-Type":"application/json"}});if(!r.ok)throw new Error(r.status);return r.json()}
+async function list(){
+  const L=await api("/api/tickets"+($("fs").value?"?status="+encodeURIComponent($("fs").value):""));
+  $("list").innerHTML=L.map(t=>{const late=!["Resolvido","Fechado"].includes(t.status)&&Date.now()>t.due;
+  return `<div class="it ${t.id===cur?"on":""}" data-id="${t.id}"><b>${esc(t.label)}</b> · ${esc(t.prio)} ${t.last_dir==="in"?'<span class="w">● aguardando TI</span>':""}<br>${esc(t.unit_code)} ${esc(t.unit_name)}<br><small>${esc(t.cat)} · ${esc(t.status)} · ${fmt(t.created)}${late?' · <span class="w">⚠ SLA</span>':""}</small></div>`}).join("")||'<p class="mu" style="padding:14px">Nenhum chamado.</p>';
+}
+async function open_(id,keep){
+  cur=id;location.hash=id;const {ticket:t,messages:M}=await api("/api/tickets/"+id);
+  const box=$("msgs"),atEnd=!box||box.scrollTop+box.clientHeight>=box.scrollHeight-30;
+  if(keep&&document.activeElement&&$("det").contains(document.activeElement)&&document.activeElement.id!=="tx"){return refreshMsgs(M,atEnd)}
+  if(keep&&$("det").dataset.id==id){return refreshMsgs(M,atEnd)}
+  $("det").dataset.id=id;
+  $("det").innerHTML=`<div><b>${esc(t.label)}</b> · ${esc(t.cat)} · <b>${esc(t.prio)}</b><br>${esc(t.unit_code)} ${esc(t.unit_name)} (${esc(t.format)}) · ${esc(t.requester)} · ${esc(t.phone)}<br><span class="mu">Aberto ${fmt(t.created)} · Prazo ${fmt(t.due)}</span></div>
+  <div class="row"><div><small class="mu">Status</small><br><select id="st" style="width:100%">${ST.map(s=>`<option ${s===t.status?"selected":""}>${s}</option>`).join("")}</select></div>
+  <div><small class="mu">Técnico</small><br><input id="te" style="width:100%" value="${esc(t.tech)}"></div></div>
+  <div class="row"><input id="so" placeholder="Solução aplicada" value="${esc(t.solution)}"><input id="pe" placeholder="Peça trocada" value="${esc(t.part)}"></div>
+  <div><button class="p" id="sv">Salvar chamado</button> <span id="ok" class="mu"></span></div>
+  <div id="msgs"></div>
+  <div class="send"><textarea id="tx" rows="2" placeholder="Responder ao funcionário (vai por WhatsApp)... Enter envia"></textarea><button class="p" id="go">Enviar</button></div><div id="er" class="bad"></div>`;
+  refreshMsgs(M,true);
+  $("sv").onclick=async()=>{await api("/api/tickets/"+id,{method:"PATCH",body:JSON.stringify({status:$("st").value,tech:$("te").value,solution:$("so").value,part:$("pe").value})});$("ok").textContent="Salvo ✓";list();open_(id,true)};
+  const send=async()=>{const v=$("tx").value.trim();if(!v)return;$("tx").value="";const r=await api(`/api/tickets/${id}/messages`,{method:"POST",body:JSON.stringify({text:v})});$("er").textContent=r.delivery.startsWith("erro")?"Não entregue no WhatsApp: "+r.delivery:"";open_(id,true)};
+  $("go").onclick=send;$("tx").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};
+}
+function refreshMsgs(M,end){const b=$("msgs");b.innerHTML=M.map(m=>`<div class="m ${m.direction}"><small>${esc(m.author)} · ${fmt(m.ts)}${m.delivery&&m.delivery.startsWith("erro")?' · <b>não entregue</b>':""}</small>${esc(m.text)}${m.media&&!m.media.startsWith("sim-")?`<br><a href="/media/${encodeURIComponent(m.media)}" target="_blank" style="color:inherit">📎 abrir anexo</a>`:""}</div>`).join("");if(end)b.scrollTop=b.scrollHeight}
+$("list").onclick=e=>{const i=e.target.closest(".it");if(i){$("det").dataset.id="";open_(+i.dataset.id);list()}};
+$("fs").onchange=list;
+$("nc").innerHTML=["Rede","Software","Hardware","Balança","Telefonia fixa","Celular/coletor","Cabos","Fontes/energia","Outros"].map(c=>`<option>${c}</option>`).join("");
+$("np").innerHTML=["Crítica","Alta","Média","Baixa"].map(c=>`<option>${c}</option>`).join("");
+$("nw").onclick=()=>{$("ne").textContent="";$("dn").showModal()};$("nx").onclick=()=>$("dn").close();
+$("ns").onclick=async()=>{try{const t=await api("/api/tickets",{method:"POST",body:JSON.stringify({unit:$("nu").value,cat:$("nc").value,prio:$("np").value,requester:$("nr").value,phone:$("nt").value,desc:$("nd").value})});
+  $("dn").close();["nu","nr","nt","nd"].forEach(i=>$(i).value="");await list();open_(t.id)}catch(e){$("ne").textContent="Preencha unidade, categoria, prioridade e descrição."}};
+list();if(cur)open_(cur);
+setInterval(()=>{list();if(cur)open_(cur,true)},8000);
+</script></body></html>
